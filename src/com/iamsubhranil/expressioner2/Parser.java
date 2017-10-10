@@ -24,14 +24,14 @@ class Parser {
     }
 
     private Expr expression() {
-        Expr mother = null;
-        while (!isAtEnd()) {
+        Expr mother = expr();
+        while ((check(LEFT_PAREN) || check(LEFT_BRACE) || check(LEFT_CURL))
+            &&!isAtEnd()) {
             Expr e = expr();
-            if (mother == null)
-                mother = e;
-            else
-                mother = new Expr.Binary(mother, token(STAR, "*"), e);
+            mother = new Expr.Binary(mother, token(STAR, "*"), e);
         }
+        if(!isAtEnd())
+            Expressioner.fatal(peek(), "Expected operator or brace before '"+peek().getLitreal()+"' !");
         return mother;
     }
 
@@ -177,7 +177,7 @@ class Parser {
         if(match(RIGHT_PAREN, RIGHT_BRACE, RIGHT_CURL))
             throw error(previous(), "Unexpected closing brace '"+previous().getLitreal()+"' !");
 
-        throw error(peek(), "Expected expression!");
+        throw error(peek(), "Unexpected end of expression!");
     }
 
     private boolean match(TokenType... types) {

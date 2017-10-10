@@ -22,7 +22,7 @@ public class Expressioner {
             System.out.println("Result : "+solver.solve().toString());
         }
         catch (ArithmeticException ar){
-            System.err.println(ar.getMessage());
+            System.err.println("[Error] "+ar.getMessage());
         }
         catch (Exception ignored){
         }

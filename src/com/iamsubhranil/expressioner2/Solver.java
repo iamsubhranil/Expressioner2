@@ -2,6 +2,7 @@ package com.iamsubhranil.expressioner2;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -33,7 +34,12 @@ public class Solver implements Expr.Visitor<Number> {
                 case STAR:
                     return l.multiply(r);
                 case SLASH:
-                    return l.divide(r);
+                    try{
+                        return l.divide(r);
+                    }
+                    catch (ArithmeticException ae) {
+                        return l.divide(r, MathContext.DECIMAL128);
+                    }
                 case PERCEN:
                     return l.remainder(r);
                 case CARET:
