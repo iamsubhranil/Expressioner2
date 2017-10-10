@@ -1,5 +1,7 @@
 package com.iamsubhranil.expressioner2;
 
+import ch.obermuhlner.math.big.BigDecimalMath;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -34,12 +36,7 @@ public class Solver implements Expr.Visitor<Number> {
                 case STAR:
                     return l.multiply(r);
                 case SLASH:
-                    try{
-                        return l.divide(r);
-                    }
-                    catch (ArithmeticException ae) {
-                        return l.divide(r, MathContext.DECIMAL128);
-                    }
+                    return l.divide(r, Expressioner.mathContext);
                 case PERCEN:
                     return l.remainder(r);
                 case CARET:
@@ -132,10 +129,11 @@ public class Solver implements Expr.Visitor<Number> {
         if(environemnt.containsKey(expr.name.getLitreal()))
             return environemnt.get(expr.name.getLitreal());
 
-        System.out.println("Enter the value of '"+expr.name.getLitreal()+"' : ");
+        System.out.print("[Input] Enter the value of '"+expr.name.getLitreal()+"' : ");
         Scanner s = new Scanner(System.in);
         while(!s.hasNextBigDecimal()  && !s.hasNextBigInteger()){
             System.err.println("[Error] Enter a numeric value!");
+            System.out.print("[Input] Enter the value of '"+expr.name.getLitreal()+"' : ");
             s.next();
         }
         Number n;
@@ -147,40 +145,40 @@ public class Solver implements Expr.Visitor<Number> {
         return n;
     }
 
-    private double getResult(TokenType t, double val){
+    private BigDecimal getResult(TokenType t, BigDecimal val){
         switch (t){
             case SIN:
-                return Math.sin(val);
+                return BigDecimalMath.sin(val, Expressioner.mathContext);
             case COS:
-                return Math.cos(val);
+                return BigDecimalMath.cos(val, Expressioner.mathContext);
             case TAN:
-                return Math.tan(val);
+                return BigDecimalMath.tan(val, Expressioner.mathContext);
             case SEC:
-                return 1.0/Math.cos(val);
+                return new BigDecimal(1.0).divide(BigDecimalMath.cos(val, Expressioner.mathContext), Expressioner.mathContext);
             case COSEC:
-                return 1.0/Math.sin(val);
+                return new BigDecimal(1.0).divide(BigDecimalMath.sin(val, Expressioner.mathContext), Expressioner.mathContext);
             case COT:
-                return 1.0/Math.tan(val);
+                return new BigDecimal(1.0).divide(BigDecimalMath.tan(val, Expressioner.mathContext), Expressioner.mathContext);
             case SINH:
-                return Math.sinh(val);
+                return BigDecimalMath.sinh(val, Expressioner.mathContext);
             case COSH:
-                return Math.cosh(val);
+                return BigDecimalMath.cosh(val, Expressioner.mathContext);
             case TANH:
-                return Math.tanh(val);
+                return BigDecimalMath.tanh(val, Expressioner.mathContext);
             case LOG:
-                return Math.log(val);
+                return BigDecimalMath.log(val, Expressioner.mathContext);
             case LOG10:
-                return Math.log10(val);
+                return BigDecimalMath.log10(val, Expressioner.mathContext);
             case SQRT:
-                return Math.sqrt(val);
+                return BigDecimalMath.sqrt(val, Expressioner.mathContext);
         }
-        return Double.NaN;
+        return BigDecimal.ZERO;
     }
 
     @Override
     public Number visitFunctionExpr(Expr.Function expr) {
         Token f = expr.name;
-        double val = decValue(expr.argument.accept(this)).doubleValue();
-        return new BigDecimal(getResult(f.getType(), val));
+        BigDecimal val = decValue(expr.argument.accept(this));
+        return getResult(f.getType(), val);
     }
 }
