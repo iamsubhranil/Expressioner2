@@ -11,9 +11,10 @@ public enum TokenType {
     PERCEN, CARET, BANG,
 
     SIN, COS, SINH, COSH, TAN, TANH,
+    ASIN, ACOS, ATAN, ASINH, ACOSH, ATANH,
     SEC, COSEC, COT,
 
-    LOG, LOG10, SQRT,
+    LOG, LOG10, SQRT, EXP,
 
     EOF
 

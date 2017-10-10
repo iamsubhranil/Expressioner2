@@ -25,6 +25,13 @@ public class Scanner {
         functions.put("log", LOG);
         functions.put("log10", LOG10);
         functions.put("sqrt", SQRT);
+        functions.put("exp", EXP);
+        functions.put("asin", ASIN);
+        functions.put("asinh", ASINH);
+        functions.put("acos", ACOS);
+        functions.put("acosh", ACOSH);
+        functions.put("atan", ATAN);
+        functions.put("atanh", ATANH);
     }
 
     public Scanner(String input) {

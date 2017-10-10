@@ -39,25 +39,6 @@ class Parser {
         return modulo();
     }
 
-    private boolean match(Collection<TokenType> c) {
-        Iterator<TokenType> i = c.iterator();
-        while (i.hasNext()) {
-            if (match(i.next())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Expr function() {
-        //     System.out.println("[Function] Current token "+tokens.get(current));
-        Token f = previous();
-        consume(LEFT_PAREN, "Functions must proceed with '('");
-        Expr arg = expr();
-        consume(RIGHT_PAREN, "Functions must end with ')'");
-        return new Expr.Function(f, arg);
-    }
-
     private Token token(TokenType type, Object lit) {
         return new Token(type, lit, 0);
     }
@@ -180,6 +161,23 @@ class Parser {
         throw error(peek(), "Unexpected end of expression!");
     }
 
+    private boolean match(Collection<TokenType> c) {
+        for (TokenType aC : c) {
+            if (match(aC)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Expr function() {
+        //     System.out.println("[Function] Current token "+tokens.get(current));
+        Token f = previous();
+        consume(LEFT_PAREN, "Functions must proceed with '('");
+        Expr arg = expr();
+        consume(RIGHT_PAREN, "Functions must end with ')'");
+        return new Expr.Function(f, arg);
+    }
     private boolean match(TokenType... types) {
         for (TokenType type : types) {
             if (check(type)) {
