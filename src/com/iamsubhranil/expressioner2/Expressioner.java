@@ -59,7 +59,7 @@ public class Expressioner {
            // System.out.println("Result : "+solver.solve().toString());
             return e;
         } catch (IOException e) {
-            fatal("[Error] "+e.getMessage());
+            fatal(e.getMessage());
         }
         return null;
     }
@@ -87,7 +87,7 @@ public class Expressioner {
             aw.write(e);
             oos.close();
         } catch (IOException exception) {
-            fatal("[Error] "+exception.getMessage());
+            fatal(exception.getMessage());
         }
     }
 
@@ -177,21 +177,21 @@ public class Expressioner {
             if(printPostfix)
                 System.out.println("[Display] Postfix form : "+new ASTPostPrinter().toPostFix(e));
 
-            result = solver.solve(e);
-
-            System.out.println("[Output] Result : "+result.toString());
-
             if(saveFile != null){
                 System.out.println("[Info] Saving to file..");
                 write(e, saveFile);
                 System.out.println("[Info] Saved successfully!");
             }
+
+            result = solver.solve(e);
+
+            System.out.println("[Output] Result : "+result.toString());
         }
         catch (ArithmeticException ar){
             System.err.println("[Error] "+ar.getMessage());
         }
         catch (Exception ignored){
-            ignored.printStackTrace();
+           // ignored.printStackTrace();
         }
     }
 
