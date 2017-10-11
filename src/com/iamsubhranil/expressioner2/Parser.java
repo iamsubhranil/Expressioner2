@@ -50,7 +50,7 @@ class Parser {
         Expr expr = addition();
 
         while (match(PERCEN)) {
-            Expressioner.debug("[Parser] Found %! Generating modulo expression!");
+            Expressioner.debug("[Parser] = modulo() [Found %]");
             Token operator = previous();
             Expr right = addition();
             Expressioner.debug("[Parser] /|\\ modulo()");
@@ -67,6 +67,7 @@ class Parser {
         Expr expr = multiplication();
 
         while (match(MINUS, PLUS)) {
+            Expressioner.debug("[Parser] = addition() [Found "+previous().getLiteral()+"]");
             Token operator = previous();
             Expr right = multiplication();
             Expressioner.debug("[Parser] /|\\ addition()");
@@ -83,6 +84,7 @@ class Parser {
         Expr expr = tothepower();
 
         while (match(SLASH, STAR)) {
+            Expressioner.debug("[Parser] = multiplication() [Found "+previous().getLiteral()+"]");
             Token operator = previous();
             Expr right = tothepower();
             Expressioner.debug("[Parser] /|\\ multiplication()");
@@ -99,6 +101,7 @@ class Parser {
         Expr expr = unary();
         while (match(CARET)) {
             Token operator = previous();
+            Expressioner.debug("[Parser] = tothepower() [Found ^]");
             Expr right = unary();
             Expressioner.debug("[Parser] /|\\ tothepower()");
             expr = new Expr.Binary(expr, operator, right);
@@ -112,12 +115,14 @@ class Parser {
         //   System.out.println("[Unary]Current token "+tokens.get(current));
         if (match(MINUS)) {
             Token operator = previous();
+            Expressioner.debug("[Parser] = unary() [Found -]");
             Expr right = unary();
             Expressioner.debug("[Parser] /|\\ unary()");
             return new Expr.Unary(operator, right);
         }
         Expr e = primary();
         if (match(BANG)) {
+            Expressioner.debug("[Parser] = unary() [Found !]");
             Token operator = previous();
             Expressioner.debug("[Parser] /|\\ unary()");
             return new Expr.Unary(operator, e);
@@ -146,7 +151,8 @@ class Parser {
         //    System.out.println("[Primary]Current token "+tokens.get(current));
         Expressioner.debug("[Parser] \\|/ primary()");
         if (match(NUMBER)) {
-            Expressioner.debug("[Parser] Found number "+previous()+"!");
+            Expressioner.debug("[Parser] = primary() [Found "+previous()+"]");
+            Expressioner.debug("[Parser] /|\\ primary()");
             if (previous().getLiteral() instanceof BigDecimal)
                 return new Expr.Literal((BigDecimal) previous().getLiteral());
             else
@@ -154,24 +160,33 @@ class Parser {
         }
 
         if (match(Scanner.functions.values())) {
-            return function();
+            Expr e = function();
+            Expressioner.debug("[Parser] /|\\ primary()");
+            return e;
         }
 
         if (match(IDENTIFIER)) {
             Expressioner.debug("[Parser] Found identifer "+previous()+"!");
+            Expressioner.debug("[Parser] /|\\ primary()");
             return new Expr.Variable(previous());
         }
 
         if (match(LEFT_PAREN)) {
-            return getGroupingExpr(RIGHT_PAREN);
+            Expr e = getGroupingExpr(RIGHT_PAREN);
+            Expressioner.debug("[Parser] /|\\ primary()");
+            return e;
         }
 
         if (match(LEFT_BRACE)) {
-            return getGroupingExpr(RIGHT_BRACE);
+            Expr e = getGroupingExpr(RIGHT_BRACE);
+            Expressioner.debug("[Parser] /|\\ primary()");
+            return e;
         }
 
         if (match(LEFT_CURL)) {
-            return getGroupingExpr(RIGHT_CURL);
+            Expr e = getGroupingExpr(RIGHT_CURL);
+            Expressioner.debug("[Parser] /|\\ primary()");
+            return e;
         }
 
         if(match(RIGHT_PAREN, RIGHT_BRACE, RIGHT_CURL))
