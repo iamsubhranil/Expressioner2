@@ -3,7 +3,6 @@ package com.iamsubhranil.expressioner2;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.iamsubhranil.expressioner2.TokenType.*;
@@ -31,7 +30,7 @@ class Parser {
             mother = new Expr.Binary(mother, token(STAR, "*"), e);
         }
         if(!isAtEnd())
-            Expressioner.fatal(peek(), "Expected operator or brace before '"+peek().getLitreal()+"' !");
+            Expressioner.fatal(peek(), "Expected operator or brace before '"+peek().getLiteral()+"' !");
         return mother;
     }
 
@@ -129,10 +128,10 @@ class Parser {
         //    System.out.println("[Primary]Current token "+tokens.get(current));
 
         if (match(NUMBER)) {
-            if (previous().getLitreal() instanceof BigDecimal)
-                return new Expr.Literal((BigDecimal) previous().getLitreal());
+            if (previous().getLiteral() instanceof BigDecimal)
+                return new Expr.Literal((BigDecimal) previous().getLiteral());
             else
-                return new Expr.Literal((BigInteger) previous().getLitreal());
+                return new Expr.Literal((BigInteger) previous().getLiteral());
         }
 
         if (match(Scanner.functions.values())) {
@@ -156,7 +155,7 @@ class Parser {
         }
 
         if(match(RIGHT_PAREN, RIGHT_BRACE, RIGHT_CURL))
-            throw error(previous(), "Unexpected closing brace '"+previous().getLitreal()+"' !");
+            throw error(previous(), "Unexpected closing brace '"+previous().getLiteral()+"' !");
 
         throw error(peek(), "Unexpected end of expression!");
     }

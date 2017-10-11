@@ -8,16 +8,12 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Solver implements Expr.Visitor<Number> {
-
-    private final Expr expr;
     private final HashMap<String, Number> environment = new HashMap<>();
 
-    public Solver(Expr e){
-        expr = e;
-    }
+    public Solver(){ }
 
-    public Number solve(){
-        return expr.accept(this);
+    public Number solve(Expr e){
+        return e.accept(this);
     }
 
     @Override
@@ -28,15 +24,15 @@ public class Solver implements Expr.Visitor<Number> {
             BigDecimal l = decValue(left), r = decValue(right);
             switch (expr.operator.getType()){
                 case MINUS:
-                    return l.subtract(r);
+                    return l.subtract(r, Expressioner.mathContext);
                 case PLUS:
-                    return l.add(r);
+                    return l.add(r, Expressioner.mathContext);
                 case STAR:
-                    return l.multiply(r);
+                    return l.multiply(r, Expressioner.mathContext);
                 case SLASH:
                     return l.divide(r, Expressioner.mathContext);
                 case PERCEN:
-                    return l.remainder(r);
+                    return l.remainder(r, Expressioner.mathContext);
                 case CARET:
                     if(right instanceof BigDecimal){
                         Expressioner.error(expr.operator, "Exponent must be integer!");
@@ -99,7 +95,7 @@ public class Solver implements Expr.Visitor<Number> {
         Number result = expr.right.accept(this);
         if(expr.operator.getType() == TokenType.MINUS){
             if(result instanceof BigDecimal)
-                return ((BigDecimal) result).multiply(BigDecimal.valueOf(-1.0));
+                return ((BigDecimal) result).multiply(BigDecimal.valueOf(-1.0), Expressioner.mathContext);
             else
                 return ((BigInteger) result).multiply(BigInteger.valueOf(-1L));
         }
@@ -133,17 +129,17 @@ public class Solver implements Expr.Visitor<Number> {
 
     @Override
     public Number visitVariableExpr(Expr.Variable expr) {
-        if(match(expr.name.getLitreal(), "PI", "E"))
-            return getConstant((String)expr.name.getLitreal());
+        if(match(expr.name.getLiteral(), "PI", "E"))
+            return getConstant((String)expr.name.getLiteral());
 
-        if(environment.containsKey(expr.name.getLitreal()))
-            return environment.get(expr.name.getLitreal());
+        if(environment.containsKey(expr.name.getLiteral()))
+            return environment.get(expr.name.getLiteral());
 
-        System.out.print("[Input] Enter the value of '"+expr.name.getLitreal()+"' : ");
+        System.out.print("[Input] Enter the value of '"+expr.name.getLiteral()+"' : ");
         Scanner s = new Scanner(System.in);
         while(!s.hasNextBigDecimal()  && !s.hasNextBigInteger()){
             System.err.println("[Error] Enter a numeric value!");
-            System.out.print("[Input] Enter the value of '"+expr.name.getLitreal()+"' : ");
+            System.out.print("[Input] Enter the value of '"+expr.name.getLiteral()+"' : ");
             s.next();
         }
         Number n;
@@ -151,7 +147,7 @@ public class Solver implements Expr.Visitor<Number> {
             n = s.nextBigInteger();
         else
             n = s.nextBigDecimal();
-        environment.put(expr.name.getLitreal().toString(), n);
+        environment.put(expr.name.getLiteral().toString(), n);
         return n;
     }
 
