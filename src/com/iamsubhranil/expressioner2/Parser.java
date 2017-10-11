@@ -19,6 +19,7 @@ class Parser {
     }
 
     public Expr parse() {
+        Expressioner.debug("[Parser] Generating expression");
         return expression();
     }
 
@@ -26,6 +27,7 @@ class Parser {
         Expr mother = expr();
         while ((check(LEFT_PAREN) || check(LEFT_BRACE) || check(LEFT_CURL))
             &&!isAtEnd()) {
+            Expressioner.debug("[Parser] Found brace without operator! Multiplying implicitly!");
             Expr e = expr();
             mother = new Expr.Binary(mother, token(STAR, "*"), e);
         }
@@ -43,76 +45,91 @@ class Parser {
     }
 
     private Expr modulo() {
+        Expressioner.debug("[Parser] Current token : "+tokens.get(current));
+        Expressioner.debug("[Parser] \\|/ modulo()");
         Expr expr = addition();
 
         while (match(PERCEN)) {
+            Expressioner.debug("[Parser] Found %! Generating modulo expression!");
             Token operator = previous();
             Expr right = addition();
+            Expressioner.debug("[Parser] /|\\ modulo()");
             expr = new Expr.Binary(expr, operator, right);
         }
+
+        Expressioner.debug("[Parser] /|\\ modulo()");
         return expr;
     }
 
     private Expr addition() {
         //   System.out.println("[Addition]Current token "+tokens.get(current));
+        Expressioner.debug("[Parser] \\|/ addition()");
         Expr expr = multiplication();
 
         while (match(MINUS, PLUS)) {
             Token operator = previous();
             Expr right = multiplication();
+            Expressioner.debug("[Parser] /|\\ addition()");
             expr = new Expr.Binary(expr, operator, right);
         }
 
+        Expressioner.debug("[Parser] /|\\ addition()");
         return expr;
     }
 
     private Expr multiplication() {
-
+        Expressioner.debug("[Parser] \\|/ multiplication()");
         //      System.out.println("[Multiplication]Current token "+tokens.get(current));
         Expr expr = tothepower();
 
         while (match(SLASH, STAR)) {
             Token operator = previous();
             Expr right = tothepower();
+            Expressioner.debug("[Parser] /|\\ multiplication()");
             expr = new Expr.Binary(expr, operator, right);
         }
 
+        Expressioner.debug("[Parser] /|\\ multiplication()");
         return expr;
     }
 
     private Expr tothepower() {
-
+        Expressioner.debug("[Parser] \\|/ tothepower()");
         //   System.out.println("[Tothepower]Current token "+tokens.get(current));
         Expr expr = unary();
-
         while (match(CARET)) {
             Token operator = previous();
             Expr right = unary();
+            Expressioner.debug("[Parser] /|\\ tothepower()");
             expr = new Expr.Binary(expr, operator, right);
         }
-
+        Expressioner.debug("[Parser] /|\\ tothepower()");
         return expr;
     }
 
     private Expr unary() {
-
+        Expressioner.debug("[Parser] \\|/ unary()");
         //   System.out.println("[Unary]Current token "+tokens.get(current));
         if (match(MINUS)) {
             Token operator = previous();
             Expr right = unary();
+            Expressioner.debug("[Parser] /|\\ unary()");
             return new Expr.Unary(operator, right);
         }
         Expr e = primary();
         if (match(BANG)) {
             Token operator = previous();
+            Expressioner.debug("[Parser] /|\\ unary()");
             return new Expr.Unary(operator, e);
         }
+        Expressioner.debug("[Parser] /|\\ unary()");
         return e;
 
     }
 
     private Expr getGroupingExpr(TokenType end){
         Expr expr = null;
+        Expressioner.debug("[Parser] \\|/ group()");
         while(!check(end)) {
             if(expr == null)
                 expr = expr();
@@ -120,14 +137,16 @@ class Parser {
                 expr = new Expr.Binary(expr, token(STAR, "*"), expr());
         }
         consume(end, "Expected "+end+" after expression!");
+        Expressioner.debug("[Parser] /|\\ group()");
         return new Expr.Grouping(expr);
     }
 
     private Expr primary() {
 
         //    System.out.println("[Primary]Current token "+tokens.get(current));
-
+        Expressioner.debug("[Parser] \\|/ primary()");
         if (match(NUMBER)) {
+            Expressioner.debug("[Parser] Found number "+previous()+"!");
             if (previous().getLiteral() instanceof BigDecimal)
                 return new Expr.Literal((BigDecimal) previous().getLiteral());
             else
@@ -139,6 +158,7 @@ class Parser {
         }
 
         if (match(IDENTIFIER)) {
+            Expressioner.debug("[Parser] Found identifer "+previous()+"!");
             return new Expr.Variable(previous());
         }
 
@@ -170,11 +190,13 @@ class Parser {
     }
 
     private Expr function() {
+        Expressioner.debug("[Parser] \\|/ function()");
         //     System.out.println("[Function] Current token "+tokens.get(current));
         Token f = previous();
         consume(LEFT_PAREN, "Functions must proceed with '('");
         Expr arg = expr();
         consume(RIGHT_PAREN, "Functions must end with ')'");
+        Expressioner.debug("[Parser] /|\\ function()");
         return new Expr.Function(f, arg);
     }
     private boolean match(TokenType... types) {

@@ -17,11 +17,11 @@ public class ASTReader {
             return defaultRead();
         }
         catch (EOFException ee){
-            ee.printStackTrace();
+          //  ee.printStackTrace();
             Expressioner.fatal("Unexpected end of binary!");
         }
         catch (IOException io){
-            io.printStackTrace();
+          //  io.printStackTrace();
             Expressioner.fatal( "Unable to read input file!");
         }
         catch (ClassNotFoundException cnfe){
@@ -54,26 +54,32 @@ public class ASTReader {
     }
 
     private Expr readLiteral() throws IOException, ClassNotFoundException, ClassCastException {
+        Expressioner.debug("[Reader] Reading literal!");
         return new Expr.Literal((Number)ois.readObject());
     }
 
     private Expr readVariable() throws IOException, ClassNotFoundException, ClassCastException {
+        Expressioner.debug("[Reader] Reading variable!");
         return new Expr.Variable((Token)ois.readObject());
     }
 
     private Expr readUnary() throws IOException, ClassNotFoundException, ClassCastException {
+        Expressioner.debug("[Reader] Reading unary!");
         return new Expr.Unary((Token)ois.readObject(), defaultRead());
     }
 
     private Expr readBinary() throws IOException, ClassNotFoundException, ClassCastException {
+        Expressioner.debug("[Reader] Reading binary!");
         return new Expr.Binary(defaultRead(), (Token)ois.readObject(), defaultRead());
     }
 
     private Expr readGrouping() throws IOException, ClassNotFoundException, ClassCastException {
+        Expressioner.debug("[Reader] Reading grouping!");
         return new Expr.Grouping(defaultRead());
     }
 
     private Expr readFunction() throws IOException, ClassNotFoundException, ClassCastException {
+        Expressioner.debug("[Reader] Reading function!");
         return new Expr.Function((Token)ois.readObject(), defaultRead());
     }
 

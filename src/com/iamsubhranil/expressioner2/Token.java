@@ -45,17 +45,18 @@ public class Token implements Serializable{
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException{
-       // System.out.println("[Token] Out called for "+literal+"!");
+        Expressioner.debug("[Token] Saving literal : "+literal+"!");
         out.writeInt(type.ordinal());
         out.writeObject(literal);
         out.writeInt(position);
     }
 
     private void readObject(ObjectInputStream in) throws IOException{
-       // System.out.println("[Token] In called!");
+        Expressioner.debug("[Token] Reading literal!");
         type = TokenType.values()[in.readInt()];
         try {
             literal = in.readObject();
+            Expressioner.debug("[Token] Read literal "+literal+" of type "+type+"!");
         } catch (ClassNotFoundException e) {
             Expressioner.fatal("Unable to read literal!");
         }

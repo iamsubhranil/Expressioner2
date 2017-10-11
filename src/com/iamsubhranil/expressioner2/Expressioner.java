@@ -1,5 +1,7 @@
 package com.iamsubhranil.expressioner2;
 
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
 import java.io.*;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -8,7 +10,17 @@ import java.util.*;
 public class Expressioner {
 
     private static String source = "";
+    private static boolean debug = false;
     static MathContext mathContext = MathContext.DECIMAL128;
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
 
     private static Object getArg(String param, Iterator<String> argIterator, boolean allowString, boolean onlyCheckPresence){
         if(!argIterator.hasNext())
@@ -26,7 +38,7 @@ public class Expressioner {
                         pre = argIterator.next();
                     }
                     catch (NoSuchElementException nsee){
-                        System.err.println("[Warning] Incomplete "+param.replace("_"," ")+
+                        warning("Incomplete "+param.replace("_"," ")+
                                 " argument! Using default "+param.replace("_"," ")+"!");
                         return null;
                     }
@@ -36,7 +48,7 @@ public class Expressioner {
                 }
                 catch (NumberFormatException nfe){
                     if(!allowString)
-                        System.err.println("[Warning] Bad "+param+" argument! Using default "+param+"!");
+                        warning("Bad "+param+" argument! Using default "+param+"!");
                     return pre;
                 }
             }
@@ -48,15 +60,10 @@ public class Expressioner {
         try {
             FileInputStream fis = new FileInputStream(file);
             ObjectInputStream ois = new ObjectInputStream(fis);
-           // System.out.println("Available : "+fis.available());
             ASTReader ar = new ASTReader(ois);
             Expr e = ar.read();
             ois.close();
             fis.close();
-           // ASTPrePrinter ap = new ASTPrePrinter();
-           // System.out.println(ap.print(e));
-           // Solver solver = new Solver(e);
-           // System.out.println("Result : "+solver.solve().toString());
             return e;
         } catch (IOException e) {
             fatal(e.getMessage());
@@ -103,7 +110,7 @@ public class Expressioner {
             Object tp = getArg("precision", as.iterator(), false, false);
             if(tp !=null && tp instanceof Integer) {
                 if((int) tp <= 0)
-                    System.err.println("[Warning] Bad precision argument! Using default");
+                    warning("Bad precision argument! Using default");
                 else
                     precision = (int) tp;
             }
@@ -113,7 +120,7 @@ public class Expressioner {
                     mode = RoundingMode.valueOf((String)rMode);
                 }
                 catch (IllegalArgumentException iae){
-                    System.err.println("[Warning] Bad rounding mode argument! Using default!");
+                    warning("Bad rounding mode argument! Using default!");
                 }
             }
             else if(rMode != null){
@@ -121,7 +128,7 @@ public class Expressioner {
                     mode = RoundingMode.valueOf((int)rMode);
                 }
                 catch (IllegalArgumentException iae){
-                    System.err.println("[Warning] Bad rounding mode argument! Using default!");
+                    warning("Bad rounding mode argument! Using default!");
                 }
             }
             Object file = getArg("load", as.iterator(), true, false);
@@ -132,7 +139,7 @@ public class Expressioner {
             Object sfile = getArg("save", as.iterator(), true, false);
             if(sfile != null){
                 if(runMode == 2){
-                    System.err.println("[Warning] Using `--load`! Ignoring `--save`!");
+                    warning("Using `--load`! Ignoring `--save`!");
                 }
                 else
                     saveFile = sfile.toString();
@@ -149,12 +156,15 @@ public class Expressioner {
                     else if(t[i].equals("infix"))
                         printInfix = true;
                     else
-                        System.err.println("[Warning] Bad `--display` value '"+t[i]+"' !");
+                        warning("Bad `--display` value '"+t[i]+"' !");
                 }
             }
+            Object dbg = getArg("verbose", as.iterator(), true, true);
+            if(dbg != null)
+                debug = true;
 
             if(precision != mathContext.getPrecision() || mode != mathContext.getRoundingMode()) {
-                System.out.println("[Info] Using precision " + precision + " and mode " +
+                info("Using precision " + precision + " and mode " +
                         mode.toString().replace("_", " ").toLowerCase()
                         + "!");
                 mathContext = new MathContext(precision, mode);
@@ -178,9 +188,9 @@ public class Expressioner {
                 System.out.println("[Display] Postfix form : "+new ASTPostPrinter().toPostFix(e));
 
             if(saveFile != null){
-                System.out.println("[Info] Saving to file..");
+                info("Saving to file..");
                 write(e, saveFile);
-                System.out.println("[Info] Saved successfully!");
+                info("Saved successfully!");
             }
 
             result = solver.solve(e);
@@ -188,7 +198,7 @@ public class Expressioner {
             System.out.println("[Output] Result : "+result.toString());
         }
         catch (ArithmeticException ar){
-            System.err.println("[Error] "+ar.getMessage());
+            System.err.println(ANSI_RED+"[Error] "+ar.getMessage()+ANSI_RESET);
         }
         catch (Exception ignored){
            // ignored.printStackTrace();
@@ -196,12 +206,12 @@ public class Expressioner {
     }
 
     public static void error(int position, String message){
-        System.err.println("[Error:"+position+"] "+source);
-        System.err.print("[Error:"+position+"] ");
+        System.err.println(ANSI_RED+"[Error:"+position+"] "+source+ANSI_RESET);
+        System.err.print(ANSI_RED+"[Error:"+position+"] "+ANSI_RED);
         for(int i = 0;i < position;i++)
             System.err.print(" ");
-        System.err.print("^\n");
-        System.err.println("[Error:"+position+"] "+message);
+        System.err.print(ANSI_RED+"^\n"+ANSI_RESET);
+        System.err.println(ANSI_RED+"[Error:"+position+"] "+message+ANSI_RESET);
     }
 
     public static void error(Token token, String message){
@@ -218,7 +228,20 @@ public class Expressioner {
     }
 
     public static void fatal(String message){
-        System.err.println("[Error] "+message);
+        System.err.println(ANSI_RED+"[Error] "+message+ANSI_RESET);
         throw new RuntimeException();
+    }
+
+    public static void warning(String message){
+        System.out.println(ANSI_YELLOW+"[Warning] "+message+ANSI_RESET);
+    }
+
+    public static void info(String message){
+        System.out.println(ANSI_BLUE+"[Info] "+message+ANSI_RESET);
+    }
+
+    public static void debug(String message){
+        if(debug)
+            System.out.println(ANSI_GREEN+"[Debug] "+message+ANSI_RESET);
     }
 }

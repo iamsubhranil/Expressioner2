@@ -18,10 +18,12 @@ public class Solver implements Expr.Visitor<Number> {
 
     @Override
     public Number visitBinaryExpr(Expr.Binary expr) {
+        Expressioner.debug("[Solver] Solving binary");
         Number left = expr.left.accept(this);
         Number right = expr.right.accept(this);
         if(left instanceof BigDecimal || right instanceof BigDecimal || expr.operator.getType()==TokenType.SLASH){
             BigDecimal l = decValue(left), r = decValue(right);
+            Expressioner.debug("[Solver] Upscaling to BigDecimal");
             switch (expr.operator.getType()){
                 case MINUS:
                     return l.subtract(r, Expressioner.mathContext);
@@ -49,6 +51,7 @@ public class Solver implements Expr.Visitor<Number> {
 
         }
         else{
+            Expressioner.debug("[Solver] Performing BigInteger operation");
             BigInteger l = (BigInteger)left, r = (BigInteger)right;
             switch (expr.operator.getType()){
                 case MINUS:
@@ -81,16 +84,19 @@ public class Solver implements Expr.Visitor<Number> {
 
     @Override
     public Number visitGroupingExpr(Expr.Grouping expr) {
+        Expressioner.debug("[Solver] Solving grouping expression");
         return expr.expression.accept(this);
     }
 
     @Override
     public Number visitLiteralExpr(Expr.Literal expr) {
+        Expressioner.debug("[Solver] Returning value literal value "+expr.value.toString());
         return expr.value;
     }
 
     @Override
     public Number visitUnaryExpr(Expr.Unary expr) {
+        Expressioner.debug("[Solver] Solving unary expression");
         Token op = expr.operator;
         Number result = expr.right.accept(this);
         if(expr.operator.getType() == TokenType.MINUS){
@@ -119,6 +125,7 @@ public class Solver implements Expr.Visitor<Number> {
     }
 
     private BigDecimal getConstant(String name){
+        Expressioner.debug("[Solver] Returning constant value for "+name);
         if(name.equals("PI"))
             return BigDecimalMath.pi(Expressioner.mathContext);
         else if(name.equals("E"))
@@ -129,6 +136,7 @@ public class Solver implements Expr.Visitor<Number> {
 
     @Override
     public Number visitVariableExpr(Expr.Variable expr) {
+        Expressioner.debug("[Solver] Solving variable");
         if(match(expr.name.getLiteral(), "PI", "E"))
             return getConstant((String)expr.name.getLiteral());
 
@@ -138,7 +146,7 @@ public class Solver implements Expr.Visitor<Number> {
         System.out.print("[Input] Enter the value of '"+expr.name.getLiteral()+"' : ");
         Scanner s = new Scanner(System.in);
         while(!s.hasNextBigDecimal()  && !s.hasNextBigInteger()){
-            System.err.println("[Error] Enter a numeric value!");
+            Expressioner.warning("[Error] Enter a numeric value!");
             System.out.print("[Input] Enter the value of '"+expr.name.getLiteral()+"' : ");
             s.next();
         }
@@ -197,8 +205,10 @@ public class Solver implements Expr.Visitor<Number> {
 
     @Override
     public Number visitFunctionExpr(Expr.Function expr) {
+        Expressioner.debug("[Solver] \\|/ Solving function "+expr.name.getLiteral());
         Token f = expr.name;
         BigDecimal val = decValue(expr.argument.accept(this));
+        Expressioner.debug("[Solver] /|\\ Solved function "+expr.name.getLiteral());
         return getResult(f.getType(), val);
     }
 }

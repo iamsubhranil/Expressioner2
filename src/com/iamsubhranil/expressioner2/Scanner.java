@@ -168,10 +168,12 @@ public class Scanner {
 
     private void addToken(TokenType type) {
         String text = source.substring(start, current);
+        Expressioner.debug("[Scanner] Adding token "+text+" of type "+type);
         tokens.add(new Token(type, text, start));
     }
 
     private void addToken(TokenType type, Object literal){
+        Expressioner.debug("[Scanner] Adding literal "+literal+" of type "+type);
         tokens.add(new Token(type, literal, start));
     }
 }

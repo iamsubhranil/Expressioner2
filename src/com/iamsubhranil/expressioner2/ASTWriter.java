@@ -34,9 +34,9 @@ public class ASTWriter implements Expr.Visitor<Void>{
     public Void visitLiteralExpr(Expr.Literal expr){
         try {
             outputStream.writeInt(LITERAL);
-         //   System.out.println("[Literal] Wrote magic "+LITERAL);
+            Expressioner.debug("[Literal] Wrote magic "+LITERAL);
             outputStream.writeObject(expr.value);
-         //   System.out.println("[Literal] Wrote literal");
+            Expressioner.debug("[Literal] Wrote literal");
         }
         catch (IOException ie){
             logException(ie);
@@ -48,9 +48,9 @@ public class ASTWriter implements Expr.Visitor<Void>{
     public Void visitVariableExpr(Expr.Variable expr) {
         try {
             outputStream.writeInt(VARIABLE);
-         //   System.out.println("[Variable] Wrote magic "+VARIABLE);
+            Expressioner.debug("[Variable] Wrote magic "+VARIABLE);
             outputStream.writeObject(expr.name);
-          //  System.out.println("[Variable] Wrote Variable");
+            Expressioner.debug("[Variable] Wrote Variable");
         }
         catch (IOException ie){
             logException(ie);
@@ -62,10 +62,10 @@ public class ASTWriter implements Expr.Visitor<Void>{
     public Void visitUnaryExpr(Expr.Unary expr) {
         try {
             outputStream.writeInt(UNARY);
-          //  System.out.println("[Unary] Wrote magic "+ UNARY);
+            Expressioner.debug("[Unary] Wrote magic "+ UNARY);
             outputStream.writeObject(expr.operator);
             expr.right.accept(this);
-          //  System.out.println("[Unary] Wrote unary");
+            Expressioner.debug("[Unary] Wrote unary");
         }
         catch (IOException ie){
             logException(ie);
@@ -77,11 +77,11 @@ public class ASTWriter implements Expr.Visitor<Void>{
     public Void visitBinaryExpr(Expr.Binary expr) {
         try {
             outputStream.writeInt(BINARY);
-          //  System.out.println("[Binary] Wrote magic "+BINARY);
+            Expressioner.debug("[Binary] Wrote magic "+BINARY);
             expr.left.accept(this);
             outputStream.writeObject(expr.operator);
             expr.right.accept(this);
-         //   System.out.println("[Binary] Wrote binary");
+            Expressioner.debug("[Binary] Wrote binary");
         }
         catch (IOException ie){
             logException(ie);
@@ -93,9 +93,9 @@ public class ASTWriter implements Expr.Visitor<Void>{
     public Void visitGroupingExpr(Expr.Grouping expr) {
         try {
             outputStream.writeInt(GROUPING);
-           // System.out.println("[Grouping] Wrote magic "+GROUPING);
+            Expressioner.debug("[Grouping] Wrote magic "+GROUPING);
             expr.expression.accept(this);
-          //  System.out.println("[Grouping] Wrote grouping");
+            Expressioner.debug("[Grouping] Wrote grouping");
         } catch (IOException e) {
             logException(e);
         }
@@ -106,10 +106,10 @@ public class ASTWriter implements Expr.Visitor<Void>{
     public Void visitFunctionExpr(Expr.Function expr) {
         try {
             outputStream.writeInt(FUNCTION);
-          //  System.out.println("[Function] Wrote magic "+FUNCTION);
+            Expressioner.debug("[Function] Wrote magic "+FUNCTION);
             outputStream.writeObject(expr.name);
             expr.argument.accept(this);
-          //  System.out.println("[Function] Wrote function");
+            Expressioner.debug("[Function] Wrote function");
         }
         catch (IOException ie){
             logException(ie);
